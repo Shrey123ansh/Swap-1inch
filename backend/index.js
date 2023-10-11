@@ -2,6 +2,8 @@ import fetch from "node-fetch";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import Moralis from "moralis";
+import {EvmChain} from "@moralisweb3/common-evm-utils";
 const app = express();
 const port = 5001;
 dotenv.config();
@@ -87,6 +89,24 @@ app.get("/getTransaction", (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log("Listening for API calls", port);
+Moralis.start({
+  apiKey: process.env.MORALIS_KEY,
+}).then(() => {
+  app.listen(port, () => {
+    console.log(`Listening for API Calls`,port);
+  });
 });
+
+
+// app.get("/tokenPriceInUSD", async (req, res) => {
+
+//   const {query} = req;
+//   const chain = EvmChain.POLYGON;
+
+//   const responseOne = await Moralis.EvmApi.token.getTokenPrice({
+//     address: query.address,
+//     chain,
+//   })
+//   console.log(responseOne.raw)
+//   // return res.status(200).json(responseOne.raw);
+// });

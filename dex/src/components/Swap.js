@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { Input, Popover, Radio, Modal, message } from "antd";
 import {
   ArrowDownOutlined,
@@ -20,15 +20,14 @@ function Swap(props) {
   const [tokenTwo, setTokenTwo] = useState(tokenList[1]);
   const [isOpen, setIsOpen] = useState(false);
   const [changeToken, setChangeToken] = useState(1);
-  // const [prices, setPrices] = useState(null);
+  const [prices, setPrices] = useState(null);
+  const [pricesinUSD, setPricesinUSD] = useState(null);
   const [txDetails, setTxDetails] = useState({
     to:null,
     data: null,
     value: null,
   }); 
 
-  // 
-  // const [render,setRender]=useState(true);
 
   const {data, sendTransaction} = useSendTransaction({
     request: {
@@ -47,6 +46,27 @@ function Swap(props) {
     setSlippage(e.target.value);
   }
 
+  const [render,setRender]=useState(true);
+  const timerId = useRef();
+
+  async function outputAmount() {      
+    const res = await axios.get(`http://localhost:5001/tokenPrice`, {
+        params: {addressOne: tokenOne, addressTwo: tokenTwo, tokenOneAmount: tokenOneAmount}
+      })
+  
+      let decimals = Number(`1E${tokenTwo.decimals}`)
+      setTokenTwoAmount((Number(res.data.toAmount)/decimals).toFixed(4));
+      setPrices((Number(res.data.toAmount)/decimals).toFixed(4));
+  }
+
+  useEffect(()=>{
+    timerId.current = setInterval(()=>{
+    setRender(prev => !prev)},15000)
+    return () => {
+      outputAmount();
+      clearInterval(timerId.current)}
+  }, [render])
+
   async function changeAmount(e) {
     setTokenOneAmount(String(e.target.value));
     if(e.target.value){
@@ -54,7 +74,6 @@ function Swap(props) {
       const res = await axios.get(`http://localhost:5001/tokenPrice`, {
         params: {addressOne: tokenOne, addressTwo: tokenTwo, tokenOneAmount: e.target.value}
       })
-      // console.log(res.data);
 
       let decimals = Number(`1E${tokenTwo.decimals}`)
       setTokenTwoAmount((Number(res.data.toAmount)/decimals).toFixed(4));
@@ -63,25 +82,7 @@ function Swap(props) {
       setTokenTwoAmount(null);
     }
   }
-
-  // async function outputAmount() {      
-  //     const res = await axios.get(`http://localhost:5001/tokenPrice`, {
-  //       params: {addressOne: tokenOne, addressTwo: tokenTwo, tokenOneAmount: tokenOneAmount}
-  //     })
-
-  //     let decimals = Number(`1E${tokenTwo.decimals}`)
-  //     setTokenTwoAmount((Number(res.data.toAmount)/decimals).toFixed(5));
-  // }
-
-  // useEffect(()=>{
-  //   setTimeout(() => {
-  //     outputAmount();
-  //     console.log("function ran");  
-  //     setRender((prev)=>  (!prev));  
-  //   }, 15000);
-
-  // }, [render])
-
+ 
   async function fetchDexSwap(){
 
     const allowance = await axios.get(`http://localhost:5001/check`, {
@@ -100,7 +101,6 @@ function Swap(props) {
       const tx = await axios.get(`http://localhost:5001/getTransaction`, {
         params: {addressOne: tokenOne, addressTwo: tokenTwo, tokenOneAmount: tokenOneAmount, address: address, slippage: slippage}
       })
-      // console.log(tx.data.tx)
       setTxDetails(tx.data.tx);
    
   }
@@ -135,8 +135,19 @@ function Swap(props) {
         sendTransaction();
       }
   }, [txDetails])
-  
-  
+
+  async function outputForSingleToken(one,two) {      
+      const res0 = await axios.get(`http://localhost:5001/tokenPrice`, {
+        params: {addressOne: one, addressTwo: two, tokenOneAmount: "1"}
+      })
+
+      let decimals = Number(`1E${tokenTwo.decimals}`)
+      setPrices((Number(res0.data.toAmount)/decimals).toFixed(4));
+  }
+
+  useEffect(()=>{
+    outputForSingleToken(tokenOne,tokenTwo);
+  }, [tokenOne,tokenTwo])
 
   useEffect(()=>{
 
@@ -245,6 +256,23 @@ function Swap(props) {
             <DownOutlined />
           </div>
         </div>
+        <div className="home-container16">
+          <div className="home-container17">
+            <span className="home-text10">1</span>
+            <span className="home-text11">{tokenOne.ticker}</span>
+            <span className="home-text12">=</span>
+            <span className="home-text13">{prices}</span>
+            <span className="home-text14">{tokenTwo.ticker}</span>
+          </div>
+          <div className="home-container18">
+            <img
+              alt="image"
+              src="/fees-removebg-preview-200w.png"
+              className="home-image2"
+            />
+            <span className="home-text16">~$0.01</span>
+          </div>
+        </div>
         <div className="swapButton" disabled={!tokenOneAmount || !isConnected} onClick={fetchDexSwap}>Swap</div>
       </div>
     </>
@@ -252,3 +280,25 @@ function Swap(props) {
 }
 
 export default Swap;
+
+
+  // async function outputAmount() {      
+  //       const res = await axios.get(`http://localhost:5001/tokenPrice`, {
+  //           params: {addressOne: tokenOne, addressTwo: tokenTwo, tokenOneAmount: tokenOneAmount}
+  //         })
+      
+  //         let decimals = Number(`1E${tokenTwo.decimals}`)
+  //         setTokenTwoAmount((Number(res.data.toAmount)/decimals).toFixed(5));
+  //     }
+  
+
+//   async function fetchPrices(){
+//     const res = await axios.get(`http://localhost:5001/tokenPriceInUSD`, {
+//       params: {address: tokenTwo}
+//     })
+//     setPricesinUSD(res.data.usdPrice)
+//     console.log(pricesinUSD)
+// }
+
+
+  

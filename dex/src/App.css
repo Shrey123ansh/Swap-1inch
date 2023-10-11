@@ -266,3 +266,27 @@ header {
   font-weight: 300;
   color: #51596f;
 }
+
+.home-container16 {
+  width: 60%;
+  height: 24px;
+  margin-left: 40px;
+
+}
+.home-container17 {
+  width: 60%;
+}
+.home-container18 {
+  width: 100%;
+  margin-left: 80px;
+}
+.home-image2 {
+  width: 22px;
+  height: auto;
+  margin-left: 0px;
+  margin-right: 6px;
+}
+.home-text16 {
+  color: rgb(158, 154, 154);
+  margin-right: var(--dl-space-space-halfunit);
+}
