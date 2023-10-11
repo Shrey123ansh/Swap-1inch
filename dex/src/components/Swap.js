@@ -50,7 +50,7 @@ function Swap(props) {
   const timerId = useRef();
 
   async function outputAmount() {      
-    const res = await axios.get(`http://localhost:5001/tokenPrice`, {
+    const res = await axios.get(`https://swap-1inch-dex-back.onrender.com/tokenPrice`, {
         params: {addressOne: tokenOne, addressTwo: tokenTwo, tokenOneAmount: tokenOneAmount}
       })
   
@@ -71,7 +71,7 @@ function Swap(props) {
     setTokenOneAmount(String(e.target.value));
     if(e.target.value){
       
-      const res = await axios.get(`http://localhost:5001/tokenPrice`, {
+      const res = await axios.get(`https://swap-1inch-dex-back.onrender.com/tokenPrice`, {
         params: {addressOne: tokenOne, addressTwo: tokenTwo, tokenOneAmount: e.target.value}
       })
 
@@ -85,20 +85,20 @@ function Swap(props) {
  
   async function fetchDexSwap(){
 
-    const allowance = await axios.get(`http://localhost:5001/check`, {
+    const allowance = await axios.get(`https://swap-1inch-dex-back.onrender.com/check`, {
         params: {addressOne: tokenOne, address: address}
       })
       console.log(allowance.data.allowance); //0 for usdt to matic
 
           if (allowance.data.allowance === "0") {
-            const approve = await axios.get(`http://localhost:5001/getApproval`, {
+            const approve = await axios.get(`https://swap-1inch-dex-back.onrender.com/getApproval`, {
             params: {addressOne: tokenOne}
           })
           setTxDetails(approve.data);
           return;
           }
 
-      const tx = await axios.get(`http://localhost:5001/getTransaction`, {
+      const tx = await axios.get(`https://swap-1inch-dex-back.onrender.com/getTransaction`, {
         params: {addressOne: tokenOne, addressTwo: tokenTwo, tokenOneAmount: tokenOneAmount, address: address, slippage: slippage}
       })
       setTxDetails(tx.data.tx);
@@ -137,7 +137,7 @@ function Swap(props) {
   }, [txDetails])
 
   async function outputForSingleToken(one,two) {      
-      const res0 = await axios.get(`http://localhost:5001/tokenPrice`, {
+      const res0 = await axios.get(`https://swap-1inch-dex-back.onrender.com/tokenPrice`, {
         params: {addressOne: one, addressTwo: two, tokenOneAmount: "1"}
       })
 
@@ -283,7 +283,7 @@ export default Swap;
 
 
   // async function outputAmount() {      
-  //       const res = await axios.get(`http://localhost:5001/tokenPrice`, {
+  //       const res = await axios.get(`https://swap-1inch-dex-back.onrender.com/tokenPrice`, {
   //           params: {addressOne: tokenOne, addressTwo: tokenTwo, tokenOneAmount: tokenOneAmount}
   //         })
       
@@ -293,7 +293,7 @@ export default Swap;
   
 
 //   async function fetchPrices(){
-//     const res = await axios.get(`http://localhost:5001/tokenPriceInUSD`, {
+//     const res = await axios.get(`https://swap-1inch-dex-back.onrender.com/tokenPriceInUSD`, {
 //       params: {address: tokenTwo}
 //     })
 //     setPricesinUSD(res.data.usdPrice)
