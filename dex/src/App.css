@@ -268,25 +268,57 @@ header {
 }
 
 .home-container16 {
-  width: 60%;
-  height: 24px;
-  margin-left: 40px;
-
+  gap: var(--dl-space-space-unit);
+  flex: 0 0 auto;
+  width: 90%;
+  height: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
 }
 .home-container17 {
+  flex: 0 0 auto;
   width: 60%;
+  height: 25px;
+  display: flex;
+  align-items: center;
+}
+.home-text10 {
+  color: rgb(166, 158, 158);
+}
+.home-text11 {
+  color: rgb(166, 158, 158);
+  margin-left: var(--dl-space-space-halfunit);
+}
+.home-text12 {
+  color: rgb(166, 158, 158);
+  margin-left: var(--dl-space-space-halfunit);
+}
+.home-text13 {
+  color: rgb(166, 158, 158);
+  margin-left: var(--dl-space-space-halfunit);
+}
+.home-text14 {
+  color: rgb(166, 158, 158);
+  margin-left: var(--dl-space-space-halfunit);
+}
+.home-text15 {
+  color: rgb(166, 158, 158);
+  margin-left: var(--dl-space-space-halfunit);
 }
 .home-container18 {
-  width: 100%;
-  margin-left: 80px;
+  width: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 .home-image2 {
   width: 22px;
   height: auto;
-  margin-left: 0px;
-  margin-right: 6px;
+  object-fit: cover;
 }
 .home-text16 {
-  color: rgb(158, 154, 154);
-  margin-right: var(--dl-space-space-halfunit);
+  color: rgb(166, 158, 158);
+  margin-left: var(--dl-space-space-halfunit);
+  margin-right: -50px;
 }
