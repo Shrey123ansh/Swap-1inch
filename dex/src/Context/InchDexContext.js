@@ -102,7 +102,7 @@ export const DexInchProvider = ({ children }) => {
     try {
 
       const contract = await connectingWithERC20Contract();
-      const allowance = await axios.get(`http://localhost:5001/check`, {
+      const allowance = await axios.get(`https://dexswapinch.onrender.com/check`, {
         params: { addressOne: tokenOne, address: connectAccount },
       });
       // console.log(contract);
@@ -111,7 +111,7 @@ export const DexInchProvider = ({ children }) => {
 
       // if (allowance.data.allowance === 0) {
       // if (allowance2 === 0) {
-        // const approve = await axios.get(`http://localhost:5001/getApproval`, {
+        // const approve = await axios.get(`https://dexswapinch.onrender.com/getApproval`, {
         //   params: { addressOne: tokenOne },
         // });
         // or
@@ -120,7 +120,7 @@ export const DexInchProvider = ({ children }) => {
       //   return;
       // }
 
-      const res = await axios.get(`http://localhost:5001/swapTokenData`, {
+      const res = await axios.get(`https://dexswapinch.onrender.com/swapTokenData`, {
         params: {
           addressOne: tokenOne,
           addressTwo: tokenTwo,
@@ -139,7 +139,7 @@ export const DexInchProvider = ({ children }) => {
   const changeAmount = async (e) => {
     setTokenOneAmount(String(e.target.value));
     if (Number(e.target.value)) {
-      const res = await axios.get(`http://localhost:5001/tokenPrice`, {
+      const res = await axios.get(`https://dexswapinch.onrender.com/tokenPrice`, {
         params: {
           addressOne: tokenOne,
           addressTwo: tokenTwo,
@@ -157,7 +157,7 @@ export const DexInchProvider = ({ children }) => {
   const timerId = useRef();
 
   const outputAmount = async () => {
-    const res = await axios.get(`http://localhost:5001/tokenPrice`, {
+    const res = await axios.get(`https://dexswapinch.onrender.com/tokenPrice`, {
       params: {
         addressOne: tokenOne,
         addressTwo: tokenTwo,
@@ -182,7 +182,7 @@ export const DexInchProvider = ({ children }) => {
   }, [render]);
 
   const outputForSingleToken = async (one, two) => {
-    const res0 = await axios.get(`http://localhost:5001/tokenPrice`, {
+    const res0 = await axios.get(`https://dexswapinch.onrender.com/tokenPrice`, {
       params: { addressOne: one, addressTwo: two, tokenOneAmount: "1" },
     });
 
@@ -227,6 +227,7 @@ export const DexInchProvider = ({ children }) => {
     <DexContext.Provider
       value={{
         connectAccount,
+        // fetchData,
         loading,
         isSuccess,
         slippage,

@@ -1,11 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import {
-  connectWallet,
-} from "../Utils/apiFeature";
 function Header(props) {
 
-  const {address, isConnected, connect} = props;
+  const {address, connect} = props;
 
   return (
     <header>
@@ -19,9 +16,15 @@ function Header(props) {
           <img src="https://cdn.moralis.io/eth/0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0.png" alt="polygon" className="eth" />
           Polygon
         </div>
-        <div className="connectButton" onClick={connect}>
-          {isConnected ? (address.slice(0,4) +"..." +address.slice(38)) : "Connect"}
-        </div>
+        {address == "" ? (
+              <div className="connectButton" onClick={()=> connect()}>
+                <span>Connect Wallet</span>
+              </div>
+            ):(
+              <div className="connectButton" >
+                {(address.slice(0,4) +"..." +address.slice(38))}
+              </div>
+            )}
       </div>
     </header>
   );
