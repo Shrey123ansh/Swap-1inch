@@ -1,15 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import tokenList from "../tokenList.json";
 import axios from "axios";
-import { OneInchContractAddress } from "../Context/constants";
+import { OneInchContractAddress,OneinchContractabi, IERC20abi } from "../Utils/constants";
 
 //INTERNAL IMPORT
 import {
   ChechIfWalletConnected,
   connectingWithContract,
 } from "../Utils/apiFeature";
-
-import { OneinchContractabi, IERC20abi } from "../Context/constants";
 
 const { ethers } = require("ethers");
 export const DexContext = React.createContext();

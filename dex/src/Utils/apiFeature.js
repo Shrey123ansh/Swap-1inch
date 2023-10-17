@@ -1,7 +1,7 @@
 import {
   OneinchContractabi,
   OneInchContractAddress,
-} from "../Context/constants";
+} from "../Utils/constants";
 const { ethers } = require("ethers");
 
 export const ChechIfWalletConnected = async () => {
