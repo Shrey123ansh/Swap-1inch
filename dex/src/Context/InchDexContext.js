@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import tokenList from "../tokenList.json";
 import axios from "axios";
+import { OneInchContractAddress } from "../Context/constants";
 
 //INTERNAL IMPORT
 import {
@@ -49,15 +50,18 @@ export const DexInchProvider = ({ children }) => {
     try {
       const connectAccount = await ChechIfWalletConnected();
       setAccount(connectAccount);
-      console.log(connectAccount);
+      // console.log(connectAccount);
 
       const IERC20contract = await connectingWithERC20Contract();
-      console.log(IERC20contract);
+      // console.log(IERC20contract);
 
       let amount = parseFloat(tokenOneAmount ? tokenOneAmount : 1);
       amount = amount * Math.pow(10, tokenOne.decimals);
 
-      const hash1 = await IERC20contract.approve(connectAccount, amount);
+      const hash1 = await IERC20contract.approve(
+        OneInchContractAddress,
+        amount
+      );
       setLoading(true);
       await hash1.wait();
       setLoading(false);
@@ -76,10 +80,10 @@ export const DexInchProvider = ({ children }) => {
       const IERC20contract = await connectingWithERC20Contract();
       const allowance = await IERC20contract.allowance(
         connectAccount,
-        connectAccount
+        OneInchContractAddress
       );
       setAllowance(Number(allowance));
-      console.log(Number(allowance));
+      // console.log(Number(allowance));
     } catch (error) {
       // console.log(error);
     }
@@ -126,9 +130,9 @@ export const DexInchProvider = ({ children }) => {
         arr,
         params.permit,
         params.data,
-        {
-          value: amount.toString(),
-        }
+        tokenOne.address === tokenList[0].address
+          ? { value: amount.toString() }
+          : { value: 0 }
       );
 
       setLoading(true);
