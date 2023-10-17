@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef,useContext } from "react";
+import React, { useEffect, useContext } from "react";
 import { Input, Popover, Radio, Modal, message } from "antd";
 import { DexContext } from "../Context/InchDexContext";
 import {
@@ -9,8 +9,9 @@ import {
 import tokenList from "../tokenList.json";
 
 function Swap(props) {
-
-  const { connectAccount,loading,isSuccess,
+  const {
+    loading,
+    isSuccess,
     slippage,
     tokenOneAmount,
     tokenTwoAmount,
@@ -24,34 +25,35 @@ function Swap(props) {
     handleSlippageChange,
     switchTokens,
     openModal,
-    modifyToken } =
-    useContext(DexContext);
+    allowance,
+    modifyToken,
+    ApproveToken,
+  } = useContext(DexContext);
 
-  const { isConnected } = props;
+  const { isConnected,address } = props;
   const [messageApi, contextHolder] = message.useMessage();
- 
-  useEffect(()=>{
 
+  useEffect(() => {
     messageApi.destroy();
-    if(loading){
+    if (loading) {
       messageApi.open({
-        type: 'loading',
-        content: 'Transaction is Pending...',
+        type: "loading",
+        content: "Transaction is Pending...",
         duration: 0,
-      })
+      });
     }
-  },[loading])
+  }, [loading]);
 
-  useEffect(()=>{
+  useEffect(() => {
     messageApi.destroy();
-    if(isSuccess){
+    if (isSuccess) {
       messageApi.open({
-        type: 'success',
-        content: 'Transaction Successful',
+        type: "success",
+        content: "Transaction Successful",
         duration: 1.5,
-      })
+      });
     }
-  },[isSuccess])
+  }, [isSuccess]);
 
   const settings = (
     <>
@@ -147,10 +149,31 @@ function Swap(props) {
             <span className="home-text16">~$0.01</span>
           </div>
         </div>
-        <div className="swapButton" disabled={!(Number(tokenOneAmount)) || !isConnected || !(Number(tokenTwoAmount)) } onClick={DexSwap}>Swap</div>
+        {/* <div className="swapButton" disabled={!(Number(tokenOneAmount)) || !isConnected || !(Number(tokenTwoAmount)) } onClick={SwapResponce}>Swap</div> */}
+        {(allowance === 0) ? (
+          <div
+            className="swapButton"
+            disabled={
+               !isConnected
+            }
+            onClick={ApproveToken}
+          >
+            Approve
+          </div>
+        ) : (
+          <div
+            className="swapButton"
+            disabled={
+              !Number(tokenOneAmount) || !address || !Number(tokenTwoAmount)
+            }
+            onClick={DexSwap}
+          >
+            Swap
+          </div>
+        )}
       </div>
     </>
-  );  
+  );
 }
 
 export default Swap;

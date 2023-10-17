@@ -5,7 +5,6 @@ import axios from "axios";
 //INTERNAL IMPORT
 import {
   ChechIfWalletConnected,
-  connectWallet,
   connectingWithContract,
 } from "../Utils/apiFeature";
 
@@ -27,6 +26,7 @@ export const DexInchProvider = ({ children }) => {
   const [tokenTwo, setTokenTwo] = useState(tokenList[1]);
   const [prices, setPrices] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [allowance, setAllowance] = useState(null);
 
   //CREATE ACCOUNT
 
@@ -45,45 +45,91 @@ export const DexInchProvider = ({ children }) => {
     }
   };
 
+  const ApproveToken = async () => {
+    try {
+      const connectAccount = await ChechIfWalletConnected();
+      setAccount(connectAccount);
+      console.log(connectAccount);
+
+      const IERC20contract = await connectingWithERC20Contract();
+      console.log(IERC20contract);
+
+      let amount = parseFloat(tokenOneAmount ? tokenOneAmount : 1);
+      amount = amount * Math.pow(10, tokenOne.decimals);
+
+      const hash1 = await IERC20contract.approve(connectAccount, amount);
+      setLoading(true);
+      await hash1.wait();
+      setLoading(false);
+      setSuccess(true);
+      window.location.reload();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const CheckAllowance = async () => {
+    try {
+      const connectAccount = await ChechIfWalletConnected();
+      setAccount(connectAccount);
+
+      const IERC20contract = await connectingWithERC20Contract();
+      const allowance = await IERC20contract.allowance(
+        connectAccount,
+        connectAccount
+      );
+      setAllowance(Number(allowance));
+      console.log(Number(allowance));
+    } catch (error) {
+      // console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    CheckAllowance();
+  }, [tokenOne]);
+
   const DexSwap = async () => {
     try {
-      const contract = await connectingWithContract();
-      // console.log(contract);
-
-      const connectAccount = await connectWallet();
+      const connectAccount = await ChechIfWalletConnected();
       setAccount(connectAccount);
-      // console.log(connectAccount);
 
-      const responseParams = await SwapResponce();
+      const response = await axios.get(
+        `https://dexswapinch.onrender.com/swapTokenData`,
+        {
+          params: {
+            addressOne: tokenOne,
+            addressTwo: tokenTwo,
+            tokenOneAmount: tokenOneAmount,
+            address: connectAccount,
+            slippage: slippage,
+          },
+        }
+      );
 
-      const inter = new ethers.Interface(OneinchContractabi);
-
-      const data = inter
-        .decodeFunctionData("swap", responseParams.data.tx.data)
-        .toObject().data;
-      const executor = inter
-        .decodeFunctionData("swap", responseParams.data.tx.data)
-        .toObject().executor;
-      const permit = inter
-        .decodeFunctionData("swap", responseParams.data.tx.data)
-        .toObject().permit;
-      const json = inter
-        .decodeFunctionData("swap", responseParams.data.tx.data)
-        .toObject().desc;
+      const params = new ethers.Interface(OneinchContractabi)
+        .decodeFunctionData("swap", response.data.tx.data)
+        .toObject();
 
       const arr = [];
-      Object.keys(json).forEach(function (key) {
-        arr.push(json[key]);
+      Object.keys(params.desc).forEach(function (key) {
+        arr.push(params.desc[key]);
       });
-
-      // console.log(arr);
 
       let amount = parseFloat(tokenOneAmount);
       amount = amount * Math.pow(10, tokenOne.decimals);
 
-      const hash = await contract.swap(executor, arr, permit, data, {
-        value: amount.toString(),
-      });
+      const Inchcontract = await connectingWithContract();
+
+      const hash = await Inchcontract.swap(
+        params.executor,
+        arr,
+        params.permit,
+        params.data,
+        {
+          value: amount.toString(),
+        }
+      );
 
       setLoading(true);
       await hash.wait();
@@ -95,57 +141,19 @@ export const DexInchProvider = ({ children }) => {
     }
   };
 
-  const SwapResponce = async () => {
-    const connectAccount = await ChechIfWalletConnected();
-    setAccount(connectAccount);
-    // console.log(connectAccount,"hello");
-    try {
-
-      const contract = await connectingWithERC20Contract();
-      const allowance = await axios.get(`https://dexswapinch.onrender.com/check`, {
-        params: { addressOne: tokenOne, address: connectAccount },
-      });
-      // console.log(contract);
-      // const allowance2 = await contract.allowance(connectAccount,connectAccount);
-      // console.log(allowance.data.allowance); //0 for usdt to matic
-
-      // if (allowance.data.allowance === 0) {
-      // if (allowance2 === 0) {
-        // const approve = await axios.get(`https://dexswapinch.onrender.com/getApproval`, {
-        //   params: { addressOne: tokenOne },
-        // });
-        // or
-        // await contract.approve(connectAccount,0);
-        // console.log("not working")
-      //   return;
-      // }
-
-      const res = await axios.get(`https://dexswapinch.onrender.com/swapTokenData`, {
-        params: {
-          addressOne: tokenOne,
-          addressTwo: tokenTwo,
-          tokenOneAmount: tokenOneAmount,
-          address: connectAccount,
-          slippage: slippage,
-        },
-      });
-
-      return res;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const changeAmount = async (e) => {
     setTokenOneAmount(String(e.target.value));
     if (Number(e.target.value)) {
-      const res = await axios.get(`https://dexswapinch.onrender.com/tokenPrice`, {
-        params: {
-          addressOne: tokenOne,
-          addressTwo: tokenTwo,
-          tokenOneAmount: e.target.value,
-        },
-      });
+      const res = await axios.get(
+        `https://dexswapinch.onrender.com/tokenPrice`,
+        {
+          params: {
+            addressOne: tokenOne,
+            addressTwo: tokenTwo,
+            tokenOneAmount: e.target.value,
+          },
+        }
+      );
       let decimals = Number(`1E${tokenTwo.decimals}`);
       setTokenTwoAmount((Number(res.data.toAmount) / decimals).toFixed(4));
     } else {
@@ -182,9 +190,12 @@ export const DexInchProvider = ({ children }) => {
   }, [render]);
 
   const outputForSingleToken = async (one, two) => {
-    const res0 = await axios.get(`https://dexswapinch.onrender.com/tokenPrice`, {
-      params: { addressOne: one, addressTwo: two, tokenOneAmount: "1" },
-    });
+    const res0 = await axios.get(
+      `https://dexswapinch.onrender.com/tokenPrice`,
+      {
+        params: { addressOne: one, addressTwo: two, tokenOneAmount: "1" },
+      }
+    );
 
     let decimals = Number(`1E${tokenTwo.decimals}`);
     setPrices((Number(res0.data.toAmount) / decimals).toFixed(6));
@@ -227,7 +238,6 @@ export const DexInchProvider = ({ children }) => {
     <DexContext.Provider
       value={{
         connectAccount,
-        // fetchData,
         loading,
         isSuccess,
         slippage,
@@ -237,6 +247,7 @@ export const DexInchProvider = ({ children }) => {
         tokenTwo,
         prices,
         isOpen,
+        allowance,
         setIsOpen,
         DexSwap,
         changeAmount,
@@ -244,6 +255,7 @@ export const DexInchProvider = ({ children }) => {
         switchTokens,
         openModal,
         modifyToken,
+        ApproveToken,
       }}
     >
       {children}

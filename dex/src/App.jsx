@@ -1,6 +1,6 @@
 import "./App.css";
 import Header from "./components/Header";
-import React, { useContext,useState,useEffect } from "react";
+import React, { useState } from "react";
 import Swap from "./components/Swap";
 import { Routes, Route } from "react-router-dom";
 import {
@@ -27,7 +27,7 @@ function App() {
       <Header connect={fetchData} isConnected={ChechIfWalletConnected} address={account} />
       <div className="mainWindow">
         <Routes>
-          <Route path="/" element={<Swap isConnected={ChechIfWalletConnected} />} />
+          <Route path="/" element={<Swap isConnected={ChechIfWalletConnected} address={account}/>} />
         </Routes>
       </div>
     </div>
