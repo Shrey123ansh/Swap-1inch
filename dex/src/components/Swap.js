@@ -26,6 +26,7 @@ function Swap(props) {
     switchTokens,
     openModal,
     allowance,
+    swapValue,
     modifyToken,
     ApproveToken,
   } = useContext(DexContext);
@@ -150,7 +151,7 @@ function Swap(props) {
           </div>
         </div>
         {/* <div className="swapButton" disabled={!(Number(tokenOneAmount)) || !isConnected || !(Number(tokenTwoAmount)) } onClick={SwapResponce}>Swap</div> */}
-        {(allowance === 0) ? (
+        {(allowance < swapValue) && (tokenList[0].address !== tokenOne.address) ? (
           <div
             className="swapButton"
             disabled={

@@ -6,6 +6,7 @@ import { OneInchContractAddress,OneinchContractabi, IERC20abi } from "../Utils/c
 //INTERNAL IMPORT
 import {
   ChechIfWalletConnected,
+  connectWallet,
   connectingWithContract,
 } from "../Utils/apiFeature";
 
@@ -26,6 +27,7 @@ export const DexInchProvider = ({ children }) => {
   const [prices, setPrices] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [allowance, setAllowance] = useState(null);
+  const [swapValue, setSwapValue] = useState(0);
 
   //CREATE ACCOUNT
 
@@ -53,7 +55,7 @@ export const DexInchProvider = ({ children }) => {
       const IERC20contract = await connectingWithERC20Contract();
       // console.log(IERC20contract);
 
-      let amount = parseFloat(tokenOneAmount ? tokenOneAmount : 1);
+      let amount = parseFloat(tokenOneAmount);
       amount = amount * Math.pow(10, tokenOne.decimals);
 
       const hash1 = await IERC20contract.approve(
@@ -75,6 +77,11 @@ export const DexInchProvider = ({ children }) => {
       const connectAccount = await ChechIfWalletConnected();
       setAccount(connectAccount);
 
+      let amount = parseFloat(tokenOneAmount);
+      amount = amount * Math.pow(10, tokenOne.decimals)
+      setSwapValue(amount);
+      // console.log(amount);
+
       const IERC20contract = await connectingWithERC20Contract();
       const allowance = await IERC20contract.allowance(
         connectAccount,
@@ -85,11 +92,11 @@ export const DexInchProvider = ({ children }) => {
     } catch (error) {
       // console.log(error);
     }
-  };
+  }
 
   useEffect(() => {
     CheckAllowance();
-  }, [tokenOne]);
+  }, [tokenOne,tokenOneAmount,connectWallet]);
 
   const DexSwap = async () => {
     try {
@@ -250,6 +257,7 @@ export const DexInchProvider = ({ children }) => {
         prices,
         isOpen,
         allowance,
+        swapValue,
         setIsOpen,
         DexSwap,
         changeAmount,
